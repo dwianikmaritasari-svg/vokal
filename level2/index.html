@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 2 - Tebak Vokal CERIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #fce7f3 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .vowel-display-box {
+            transition: font-size 0.08s ease-out, transform 0.08s ease-out;
+            will-change: font-size, transform;
+        }
+
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .btn-bounce:active {
+            transform: scale(0.92);
+        }
+
+        .bar-transition {
+            transition: height 0.06s ease-out, background-color 0.2s ease;
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 4px solid rgba(255, 255, 255, 0.9);
+        }
+
+        /* Canvas Confetti Layer */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden relative">
+
+    <!-- CANVAS UNTUK EFEK KONFETI / KEMBANG API MURNI -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- HEADER NAVBAR -->
+    <header class="w-full bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-30 px-4 py-3 flex justify-between items-center border-b-4 border-amber-400">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="openLevelMenu()">
+            <span class="text-3xl md:text-4xl">🗣️</span>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-indigo-600 leading-none">VOKAL CERIA</h1>
+                <p class="text-xs font-semibold text-slate-500">Media Interaktif Bicara & Pembedaan Suara</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <!-- Badge Level Aktif -->
+            <button onclick="openLevelMenu()" class="bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-400 text-indigo-800 px-3 py-1.5 rounded-2xl flex items-center gap-2 font-bold text-xs md:text-sm shadow-sm transition">
+                <span id="headerLevelBadge" class="bg-indigo-600 text-white px-2 py-0.5 rounded-xl text-xs font-black">Level 2</span>
+                <span class="hidden sm:inline">🗺️ Pilih Level</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="container mx-auto px-4 py-3 flex-1 flex flex-col items-center justify-center max-w-4xl">
+
+        <!-- GAMEPLAY SCREEN (LEVEL 2) -->
+        <div id="gameplayScreen" class="w-full flex flex-col items-center">
+            
+            <!-- TOP BAR: Status Mikrofon & Progress Ronde -->
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <!-- Status Mikrofon Indikator -->
+                <div class="bg-white rounded-2xl p-3 shadow-sm border-2 border-slate-200 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400">STATUS MIKROFON:</span>
+                    <div id="micStatusBadge" class="flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-300 font-extrabold text-xs md:text-sm">
+                        <span id="micStatusDot">🔴</span>
+                        <span id="micStatusText">Mikrofon belum aktif</span>
+                    </div>
+                </div>
+
+                <!-- Progress Ronde (Total 5 Ronde) -->
+                <div class="bg-white rounded-2xl p-3 shadow-sm border-2 border-indigo-100 flex flex-col justify-center">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-extrabold text-indigo-600 flex items-center gap-1">
+                            🎯 Progress Ronde: <span id="progressText" class="text-sm text-pink-600 font-black">0 / 5 Ronde</span>
+                        </span>
+                        <span id="scoreText" class="text-xs font-black text-amber-500">Skor: 0</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden p-0.5">
+                        <div id="progressBar" class="bg-gradient-to-r from-amber-400 via-emerald-400 to-indigo-500 h-full rounded-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VOWEL SELECTOR CARDS (BEBAS DITEKAN) -->
+            <div class="w-full grid grid-cols-5 gap-2 md:gap-3 mb-3">
+                <button onclick="selectVowel('A')" id="btn-A" class="vowel-btn bg-red-100 hover:bg-red-200 border-4 border-red-400 rounded-2xl py-2 md:py-3 text-center shadow-sm font-black text-2xl md:text-4xl text-red-600 btn-bounce relative">
+                    A
+                    <span id="check-A" class="hidden absolute -top-2 -right-1 text-base bg-white rounded-full shadow">✅</span>
+                </button>
+                <button onclick="selectVowel('I')" id="btn-I" class="vowel-btn bg-amber-100 hover:bg-amber-200 border-4 border-amber-400 rounded-2xl py-2 md:py-3 text-center shadow-sm font-black text-2xl md:text-4xl text-amber-600 btn-bounce relative">
+                    I
+                    <span id="check-I" class="hidden absolute -top-2 -right-1 text-base bg-white rounded-full shadow">✅</span>
+                </button>
+                <button onclick="selectVowel('U')" id="btn-U" class="vowel-btn bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-400 rounded-2xl py-2 md:py-3 text-center shadow-sm font-black text-2xl md:text-4xl text-emerald-600 btn-bounce relative">
+                    U
+                    <span id="check-U" class="hidden absolute -top-2 -right-1 text-base bg-white rounded-full shadow">✅</span>
+                </button>
+                <button onclick="selectVowel('E')" id="btn-E" class="vowel-btn bg-blue-100 hover:bg-blue-200 border-4 border-blue-400 rounded-2xl py-2 md:py-3 text-center shadow-sm font-black text-2xl md:text-4xl text-blue-600 btn-bounce relative">
+                    E
+                    <span id="check-E" class="hidden absolute -top-2 -right-1 text-base bg-white rounded-full shadow">✅</span>
+                </button>
+                <button onclick="selectVowel('O')" id="btn-O" class="vowel-btn bg-purple-100 hover:bg-purple-200 border-4 border-purple-400 rounded-2xl py-2 md:py-3 text-center shadow-sm font-black text-2xl md:text-4xl text-purple-600 btn-bounce relative">
+                    O
+                    <span id="check-O" class="hidden absolute -top-2 -right-1 text-base bg-white rounded-full shadow">✅</span>
+                </button>
+            </div>
+
+            <!-- MAIN VOWEL DISPLAY BOX (TARGET MEMBESAR Sesuai SUARA) -->
+            <div class="w-full glass-card rounded-3xl p-4 md:p-6 shadow-xl text-center flex flex-col items-center justify-between min-h-[340px] md:min-h-[400px] relative overflow-hidden">
+                
+                <!-- Target Prompt Hint -->
+                <div class="text-sm md:text-base font-extrabold text-slate-500 flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                    <span>📢 Ucapkan Vokal Target:</span>
+                    <span id="targetVowelBadge" class="text-xl md:text-2xl font-black text-indigo-600">A</span>
+                </div>
+
+                <!-- Dynamic Growing Vowel Character (80px - 400px) -->
+                <div class="flex-1 flex items-center justify-center w-full my-2 relative">
+                    <div id="vowelDisplay" class="vowel-display-box font-black text-indigo-500 leading-none select-none drop-shadow-lg" style="font-size: 100px;">
+                        A
+                    </div>
+                </div>
+
+                <!-- Hold Sound Timer / Target Bar (Sustained 2 Seconds) -->
+                <div class="w-full max-w-md bg-slate-100 rounded-full h-4 mb-3 border border-slate-300 overflow-hidden relative shadow-inner">
+                    <div id="holdProgress" class="bg-gradient-to-r from-yellow-400 to-emerald-500 h-full w-0 transition-all duration-100"></div>
+                    <span id="holdText" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-600 uppercase tracking-wider">
+                        TAHAN SUARA NYARING (2 DETIK)
+                    </span>
+                </div>
+
+                <!-- EQUALIZER 10-BAR VISUALIZER (RMS SMOOTHING) -->
+                <div class="w-full max-w-md bg-white p-3 rounded-2xl border-2 border-slate-200 shadow-sm">
+                    <div class="text-[11px] font-bold text-slate-400 mb-1 flex justify-between">
+                        <span>METER SUARA REAL-TIME</span>
+                        <span id="dbText" class="text-indigo-600 font-extrabold">0 dB</span>
+                    </div>
+                    <div id="equalizer" class="flex justify-between items-end h-14 gap-1.5 px-1">
+                        <!-- 10 Bars -->
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                        <div class="bar-transition flex-1 bg-gradient-to-t from-indigo-500 to-pink-500 rounded-t-md h-2"></div>
+                    </div>
+                </div>
+
+                <!-- CONTROLS BUTTONS -->
+                <div class="mt-4 flex flex-wrap justify-center gap-3 w-full">
+                    <button id="btnStartMic" onclick="requestMicPermission()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base md:text-lg px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-emerald-700 btn-bounce flex items-center gap-2">
+                        <span>🎙️</span> Aktifkan Mikrofon
+                    </button>
+                    <button onclick="simulateVoiceSuccess()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-xs md:text-sm px-4 py-3 rounded-2xl border-2 border-amber-300 btn-bounce">
+                        ⚡ Uji Suara (Simulasi)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL NAVIGASI LEVEL (Hanya Level 1 & Level 2) -->
+    <div id="levelModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-xl rounded-3xl p-6 shadow-2xl border-4 border-indigo-400 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">🗺️</span>
+                    <div>
+                        <h2 class="text-2xl font-black text-indigo-700">Pilih Level Belajar</h2>
+                        <p class="text-xs font-bold text-slate-500">Modul Pembelajaran Suara untuk Anak</p>
+                    </div>
+                </div>
+                <button onclick="closeLevelMenu()" class="text-slate-400 hover:text-slate-600 text-2xl font-black p-2">✕</button>
+            </div>
+
+            <!-- LIST LEVEL (MAX LEVEL 2) -->
+            <div class="flex flex-col gap-3 my-1">
+                
+                <!-- LEVEL 1 -->
+                <div onclick="selectLevel(1)" class="cursor-pointer border-3 border-emerald-400 bg-emerald-50 hover:bg-emerald-100 p-4 rounded-2xl flex items-center justify-between transition border-l-8 border-l-emerald-500 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow">1</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-extrabold text-base md:text-lg text-emerald-900">Level 1: Kenal Vokal & Suara</h3>
+                                <span class="bg-emerald-200 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Dasar</span>
+                            </div>
+                            <p class="text-xs text-emerald-700 font-semibold">Mendeteksi tiupan, tepukan, dan kelantangan suara dasar.</p>
+                        </div>
+                    </div>
+                    <span class="text-xl">👉</span>
+                </div>
+
+                <!-- LEVEL 2 (LEVEL MAKSIMUM / UTAMA) -->
+                <div onclick="selectLevel(2)" class="cursor-pointer border-4 border-indigo-500 bg-indigo-50 p-4 rounded-2xl flex items-center justify-between transition border-l-8 border-l-indigo-600 shadow-md ring-2 ring-indigo-300">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow">2</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-extrabold text-base md:text-lg text-indigo-900">Level 2: Tebak Vokal CERIA</h3>
+                                <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-md animate-pulse">🌟 Level Maksimum</span>
+                            </div>
+                            <p class="text-xs text-indigo-700 font-semibold">Mengucapkan & memperpanjang bunyi vokal A, I, U, E, O secara akurat.</p>
+                        </div>
+                    </div>
+                    <span class="text-2xl">🏆</span>
+                </div>
+
+            </div>
+
+            <div class="bg-yellow-50 p-3 rounded-xl border border-yellow-200 text-xs text-amber-800 flex items-center gap-2">
+                <span>💡</span>
+                <span><strong>Petunjuk:</strong> Level 2 adalah tingkat tertinggi untuk latihan kejelasan dan ketahanan vokal anak.</span>
+            </div>
+
+            <button onclick="closeLevelMenu()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-black py-3 rounded-xl transition">
+                Tutup Menu
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL LAYAR AKHIR / GAME FINISHED SCREEN (TANPA LEVEL 3) -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-yellow-400 text-center flex flex-col items-center relative my-auto">
+            
+            <div class="text-5xl md:text-6xl mb-1 animate-bounce">🎉</div>
+            
+            <h2 class="text-2xl md:text-3xl font-black text-indigo-700 leading-tight mb-1">
+                🎉 SELAMAT! Kamu Berhasil Menyelesaikan Permainan Vokal! 🎉
+            </h2>
+            <p class="text-slate-500 font-bold text-xs md:text-sm mb-3">
+                Hasil Tebak Vokal CERIA
+            </p>
+
+            <!-- SKOR BINTANG (5 BINTANG) -->
+            <div class="flex justify-center gap-1.5 text-4xl md:text-5xl my-1" id="starContainer">
+                <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+            </div>
+
+            <!-- NILAI AKHIR SKOR -->
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl px-6 py-2 my-2">
+                <span class="text-[10px] font-black text-amber-600 block uppercase tracking-wider">Skor Akhir</span>
+                <span id="finalScoreText" class="text-3xl md:text-4xl font-black text-amber-500">100 / 100</span>
+            </div>
+
+            <!-- UCAPAN PUJIAN POSITIF -->
+            <p id="affirmativeText" class="text-emerald-600 font-black text-sm md:text-base mb-3 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 w-full">
+                🏆 Hebat! Kamu Anak Pintar! Suaramu Luar Biasa!
+            </p>
+
+            <!-- REKAP RONDE (RONDE 1 - 5) -->
+            <div class="w-full bg-slate-50 p-3 rounded-2xl border border-slate-200 mb-5 text-left">
+                <span class="text-xs font-extrabold text-slate-400 block mb-2 text-center uppercase tracking-wider">REKAP RONDE TERSELESAIKAN:</span>
+                <div class="grid grid-cols-5 gap-1.5 text-center" id="roundRecapContainer">
+                    <div class="bg-white border border-emerald-300 p-1.5 rounded-xl text-xs font-black text-emerald-700">R1 ✅</div>
+                    <div class="bg-white border border-emerald-300 p-1.5 rounded-xl text-xs font-black text-emerald-700">R2 ✅</div>
+                    <div class="bg-white border border-emerald-300 p-1.5 rounded-xl text-xs font-black text-emerald-700">R3 ✅</div>
+                    <div class="bg-white border border-emerald-300 p-1.5 rounded-xl text-xs font-black text-emerald-700">R4 ✅</div>
+                    <div class="bg-white border border-emerald-300 p-1.5 rounded-xl text-xs font-black text-emerald-700">R5 ✅</div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS (HANYA MAIN LAGI & RESTART) -->
+            <div class="flex flex-col gap-2.5 w-full">
+                <button onclick="restartGame()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-black text-base md:text-lg py-3.5 rounded-2xl shadow-lg border-b-4 border-amber-600 btn-bounce flex items-center justify-center gap-2">
+                    <span>🔄</span> Main Lagi Level 2
+                </button>
+                <button onclick="restartFromLevel1()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold py-3 rounded-2xl border-2 border-slate-300 btn-bounce text-sm flex items-center justify-center gap-1">
+                    <span>🏠</span> Ulangi Dari Level 1
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-2 bg-white/60 border-t border-slate-200 text-[11px] font-bold text-slate-500">
+        📌 Media Pembelajaran Vokal Anak Hambatan Pendengaran | Level 2 (Maksimum)
+    </footer>
+
+    <script>
+        // --- GAME STATE VARIABLES ---
+        let targetVowel = 'A';
+        let currentRound = 0; // Total 5 Ronde
+        const maxRounds = 5;
+        let score = 0;
+        let completedRowelsHistory = [];
+        
+        // Web Audio API Variables
+        let isMicActive = false;
+        let audioCtx = null;
+        let analyser = null;
+        let microphone = null;
+        let javascriptNode = null;
+        let smoothedVolume = 0;
+
+        // Sustained Sound Timer Logic (2 Detik minimal)
+        let holdTime = 0; // Milliseconds
+        const requiredHoldTime = 2000; // 2 Detik
+        let lastProcessTime = Date.now();
+        let isRoundCompleted = false;
+
+        const vowelColors = {
+            'A': 'text-red-500',
+            'I': 'text-amber-500',
+            'U': 'text-emerald-500',
+            'E': 'text-blue-500',
+            'O': 'text-purple-500'
+        };
+
+        // --- MURE CONFETTI SYSTEM (WITHOUT EXTERNAL LIB) ---
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const ctx = confettiCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createConfetti() {
+            particles = [];
+            const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+            for (let i = 0; i < 120; i++) {
+                particles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    size: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vy: Math.random() * 3 + 2,
+                    vx: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360,
+                    rSpeed: Math.random() * 10 - 5
+                });
+            }
+        }
+
+        function renderConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            particles.forEach((p) => {
+                p.y += p.vy;
+                p.x += p.vx;
+                p.rotation += p.rSpeed;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+
+            particles = particles.filter(p => p.y < confettiCanvas.height);
+            if (particles.length > 0) {
+                requestAnimationFrame(renderConfetti);
+            }
+        }
+
+        function triggerVictoryConfetti() {
+            createConfetti();
+            renderConfetti();
+        }
+
+        // --- SELEKSI VOKAL TARGET (BEBAS) ---
+        function selectVowel(vowel) {
+            targetVowel = vowel;
+            
+            // Update Tampilan Vokal Target
+            const display = document.getElementById('vowelDisplay');
+            display.innerText = vowel;
+            display.className = `vowel-display-box font-black ${vowelColors[vowel]} leading-none select-none drop-shadow-lg`;
+            
+            document.getElementById('targetVowelBadge').innerText = vowel;
+
+            // Highlight tombol aktif
+            document.querySelectorAll('.vowel-btn').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-indigo-500', 'scale-105');
+            });
+            const activeBtn = document.getElementById(`btn-${vowel}`);
+            if (activeBtn) activeBtn.classList.add('ring-4', 'ring-indigo-500', 'scale-105');
+
+            // Reset Hold Progress
+            holdTime = 0;
+            updateHoldBar();
+        }
+
+        // --- WEB AUDIO API & MIKROFON ---
+        async function requestMicPermission() {
+            if (isMicActive) {
+                stopMic();
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                microphone = audioCtx.createMediaStreamSource(stream);
+                javascriptNode = audioCtx.createScriptProcessor(2048, 1, 1);
+
+                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 1024;
+
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioCtx.destination);
+
+                javascriptNode.onaudioprocess = processAudio;
+
+                isMicActive = true;
+                updateMicStatusUI('OPEN');
+
+            } catch (err) {
+                console.error("Izin mikrofon ditolak:", err);
+                updateMicStatusUI('DENIED');
+            }
+        }
+
+        function stopMic() {
+            if (audioCtx) {
+                audioCtx.close();
+            }
+            isMicActive = false;
+            updateMicStatusUI('CLOSED');
+            resetEqualizer();
+        }
+
+        function updateMicStatusUI(status) {
+            const badge = document.getElementById('micStatusBadge');
+            const dot = document.getElementById('micStatusDot');
+            const text = document.getElementById('micStatusText');
+            const btn = document.getElementById('btnStartMic');
+
+            if (status === 'OPEN') {
+                badge.className = 'flex items-center gap-2 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300 font-extrabold text-xs md:text-sm';
+                dot.innerText = '🟢';
+                text.innerText = 'Mikrofon aktif';
+                btn.innerHTML = '<span>🛑</span> Matikan Mikrofon';
+                btn.className = 'bg-red-500 hover:bg-red-600 text-white font-black text-base md:text-lg px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-red-700 btn-bounce flex items-center gap-2';
+            } else if (status === 'DENIED') {
+                badge.className = 'flex items-center gap-2 bg-rose-100 text-rose-800 px-3 py-1 rounded-full border border-rose-300 font-extrabold text-xs md:text-sm';
+                dot.innerText = '❌';
+                text.innerText = 'Izin mikrofon ditolak';
+            } else {
+                badge.className = 'flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-300 font-extrabold text-xs md:text-sm';
+                dot.innerText = '🔴';
+                text.innerText = 'Mikrofon belum aktif';
+                btn.innerHTML = '<span>🎙️</span> Aktifkan Mikrofon';
+                btn.className = 'bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base md:text-lg px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-emerald-700 btn-bounce flex items-center gap-2';
+            }
+        }
+
+        // PROCESS AUDIO REAL-TIME (RMS VOLUME SMOOTHING)
+        function processAudio() {
+            if (!isMicActive || isRoundCompleted) return;
+
+            const now = Date.now();
+            const deltaTime = now - lastProcessTime;
+            lastProcessTime = now;
+
+            const array = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(array);
+
+            let values = 0;
+            const length = array.length;
+            for (let i = 0; i < length; i++) {
+                values += array[i];
+            }
+
+            const rawAverage = values / length; // Volume RMS level
+            
+            // Exponential Smoothing untuk RMS Stabil
+            smoothedVolume = (smoothedVolume * 0.7) + (rawAverage * 0.3);
+
+            updateVisualizer(smoothedVolume, deltaTime);
+        }
+
+        // DYNAMIC FONT RESIZING (80px - 400px) & EQUALIZER BARS
+        function updateVisualizer(volume, deltaTime) {
+            const display = document.getElementById('vowelDisplay');
+            const dbText = document.getElementById('dbText');
+
+            // 1. Scaled Font Size dari 80px hingga 380px+
+            const targetFontSize = Math.min(Math.max(80 + volume * 3.2, 80), 380);
+            display.style.fontSize = `${targetFontSize}px`;
+
+            // 2. dB Meter Text
+            dbText.innerText = `${Math.round(volume * 1.6)} dB`;
+
+            // 3. Update 10 Equalizer Bars
+            const bars = document.querySelectorAll('#equalizer div');
+            bars.forEach((bar, idx) => {
+                const variation = Math.sin(idx + Date.now() / 120) * 12;
+                const barHeight = Math.min(Math.max(volume * 1.3 + variation, 8), 100);
+                bar.style.height = `${barHeight}%`;
+            });
+
+            // 4. Threshold Detection for Sustained Sound (Ambang Suara Minimal)
+            if (volume > 28) {
+                holdTime += deltaTime;
+                if (holdTime >= requiredHoldTime) {
+                    completeRound();
+                }
+            } else {
+                // Meluruh perlahan jika suara terputus
+                holdTime = Math.max(0, holdTime - deltaTime * 1.5);
+            }
+
+            updateHoldBar();
+        }
+
+        function updateHoldBar() {
+            const percentage = Math.min(100, (holdTime / requiredHoldTime) * 100);
+            document.getElementById('holdProgress').style.width = `${percentage}%`;
+        }
+
+        function resetEqualizer() {
+            const bars = document.querySelectorAll('#equalizer div');
+            bars.forEach(bar => bar.style.height = '8%');
+            document.getElementById('vowelDisplay').style.fontSize = '80px';
+            document.getElementById('dbText').innerText = '0 dB';
+            holdTime = 0;
+            updateHoldBar();
+        }
+
+        // COMPLETE ONE ROUND (SUARA BERHASIL DITAHAN 2 DETIK)
+        function completeRound() {
+            if (isRoundCompleted) return;
+            isRoundCompleted = true;
+
+            currentRound += 1;
+            score += 20;
+            completedRowelsHistory.push(targetVowel);
+
+            // Beri Tanda Checkmark di Tombol Huruf
+            const checkIcon = document.getElementById(`check-${targetVowel}`);
+            if (checkIcon) checkIcon.classList.remove('hidden');
+
+            // Update Score & Progress UI
+            document.getElementById('scoreText').innerText = `Skor: ${score}`;
+            document.getElementById('progressText').innerText = `${currentRound} / ${maxRounds} Ronde`;
+            document.getElementById('progressBar').style.width = `${(currentRound / maxRounds) * 100}%`;
+
+            // Mini Confetti & Toast Notification
+            triggerVictoryConfetti();
+
+            if (currentRound >= maxRounds) {
+                setTimeout(showFinalVictoryScreen, 1000);
+            } else {
+                setTimeout(() => {
+                    isRoundCompleted = false;
+                    holdTime = 0;
+                    updateHoldBar();
+
+                    // Otomatis Pindah ke Vokal Berikutnya yang Belum Selesai
+                    const vowels = ['A', 'I', 'U', 'E', 'O'];
+                    const uncompleted = vowels.filter(v => !completedRowelsHistory.includes(v));
+                    if (uncompleted.length > 0) {
+                        selectVowel(uncompleted[0]);
+                    }
+                }, 1200);
+            }
+        }
+
+        // SIMULASI UJI SUARA BERHASIL (TOMBOL TES)
+        function simulateVoiceSuccess() {
+            if (isRoundCompleted) return;
+            holdTime = requiredHoldTime;
+            updateHoldBar();
+            completeRound();
+        }
+
+        // LAYAR AKHIR HASIL PERMAINAN (GAME FINISHED SCREEN)
+        function showFinalVictoryScreen() {
+            stopMic();
+            triggerVictoryConfetti();
+
+            // Populate Rekap Ronde 1-5
+            const recapContainer = document.getElementById('roundRecapContainer');
+            recapContainer.innerHTML = '';
+            completedRowelsHistory.forEach((vowel, idx) => {
+                const item = document.createElement('div');
+                item.className = 'bg-white border-2 border-emerald-400 p-2 rounded-xl text-center shadow-sm';
+                item.innerHTML = `<span class="block text-[10px] font-bold text-slate-400">Ronde ${idx+1}</span><span class="font-black text-emerald-600 text-base">${vowel} ✅</span>`;
+                recapContainer.appendChild(item);
+            });
+
+            document.getElementById('finalScoreText').innerText = `${score} / 100`;
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        // RESTART GAME
+        function restartGame() {
+            currentRound = 0;
+            score = 0;
+            isRoundCompleted = false;
+            completedRowelsHistory = [];
+
+            document.getElementById('resultModal').classList.add('hidden');
+            document.getElementById('progressText').innerText = `0 / ${maxRounds} Ronde`;
+            document.getElementById('scoreText').innerText = 'Skor: 0';
+            document.getElementById('progressBar').style.width = '0%';
+
+            ['A', 'I', 'U', 'E', 'O'].forEach(v => {
+                const check = document.getElementById(`check-${v}`);
+                if (check) check.classList.add('hidden');
+            });
+
+            selectVowel('A');
+        }
+
+        function restartFromLevel1() {
+            restartGame();
+            alert('Kembali ke Level 1: Kenal Vokal & Suara Dasar');
+        }
+
+        // MENU LEVEL MODAL CONTROLS
+        function openLevelMenu() {
+            document.getElementById('levelModal').classList.remove('hidden');
+        }
+
+        function closeLevelMenu() {
+            document.getElementById('levelModal').classList.add('hidden');
+        }
+
+        function selectLevel(level) {
+            closeLevelMenu();
+            if (level === 1) {
+                restartFromLevel1();
+            } else if (level === 2) {
+                restartGame();
+            }
+        }
+
+        // INITIALIZE APP
+        window.onload = function() {
+            selectVowel('A');
+        };
+    </script>
+</body>
+</html>

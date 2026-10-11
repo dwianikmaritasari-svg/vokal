@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Vokal Ceria 🎤✨</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Poppins & Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brandPink: '#FF6B9B',
+                        brandYellow: '#FFD93D',
+                        brandGreen: '#6BCB77',
+                        brandBlue: '#4D96FF',
+                        brandPurple: '#9B5DE5',
+                        brandOrange: '#FF9F43'
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'breath-expand': 'breathExpand 8s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-5deg)' },
+                            '50%': { transform: 'rotate(5deg)' },
+                        },
+                        breathExpand: {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '0.8' },
+                            '50%': { transform: 'scale(1.35)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Fredoka', 'Poppins', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pop-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .pop-btn:active {
+            transform: scale(0.92);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(255, 107, 155, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-yellow-100 via-pink-100 to-indigo-100 min-h-screen flex items-center justify-center p-3 sm:p-6 relative overflow-x-hidden">
+
+    <!-- Decorative Floating Elements -->
+    <div class="absolute top-6 left-6 text-brandPink opacity-30 text-4xl animate-bounce-slow pointer-events-none"><i class="fa-solid fa-microphone-lines"></i></div>
+    <div class="absolute top-12 right-10 text-brandBlue opacity-30 text-5xl animate-bounce-slow pointer-events-none" style="animation-delay: 0.5s;"><i class="fa-solid fa-wind"></i></div>
+    <div class="absolute bottom-12 left-10 text-brandPurple opacity-30 text-5xl animate-bounce-slow pointer-events-none" style="animation-delay: 1s;"><i class="fa-solid fa-face-laugh-beam"></i></div>
+    <div class="absolute bottom-8 right-8 text-brandGreen opacity-30 text-4xl animate-bounce-slow pointer-events-none" style="animation-delay: 1.5s;"><i class="fa-solid fa-star"></i></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-xl w-full bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-8 shadow-2xl border-4 border-white text-center relative z-10 my-auto">
+
+        <!-- SCREEN 1: LAYAR SELAMAT DATANG -->
+        <div id="welcome-screen" class="space-y-6 py-4">
+            <!-- Mascot Header -->
+            <div class="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto flex items-center justify-center bg-gradient-to-tr from-brandYellow via-brandPink to-brandPurple rounded-full shadow-xl border-4 border-white animate-wiggle">
+                <i class="fa-solid fa-microphone-stand text-5xl sm:text-6xl text-white drop-shadow-md"></i>
+                <div class="absolute -top-2 -right-2 bg-brandYellow text-gray-800 text-xs font-black px-3 py-1 rounded-full shadow border-2 border-white animate-bounce">
+                    SERU!
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="space-y-2">
+                <h1 class="text-3xl sm:text-4xl font-black text-gray-800 tracking-wide leading-tight">
+                    Selamat Datang di <br>
+                    <span class="bg-gradient-to-r from-brandPink via-brandPurple to-brandBlue bg-clip-text text-transparent">Game Vokal Ceria 🎤✨</span>
+                </h1>
+                <p class="text-gray-600 font-poppins text-sm sm:text-base max-w-sm mx-auto font-medium">
+                    Latih vokalmu dengan cara yang seru dan menyenangkan!
+                </p>
+            </div>
+
+            <!-- Big Play Button -->
+            <div class="pt-4">
+                <button id="start-btn" onclick="goToMenu()" class="pop-btn w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-brandPink via-brandOrange to-brandYellow text-white font-black text-xl sm:text-2xl rounded-2xl shadow-xl hover:scale-105 transition transform flex items-center justify-center mx-auto space-x-3 border-b-4 border-pink-700">
+                    <i class="fa-solid fa-play text-2xl"></i>
+                    <span>Klik untuk Mulai Bermain</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MENU MODUL LATIHAN -->
+        <div id="menu-screen" class="hidden space-y-5">
+            <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                <button onclick="goToWelcome()" class="text-gray-400 hover:text-gray-600 font-poppins text-xs sm:text-sm font-semibold flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Utama
+                </button>
+                <div class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs sm:text-sm flex items-center space-x-1">
+                    <i class="fa-solid fa-star text-amber-500"></i>
+                    <span>Total Bintang:</span>
+                    <span id="total-stars" class="text-brandPink font-black text-base">0</span>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-black text-gray-800">Pilih Latihan Vokal 🎯</h2>
+
+            <div class="grid grid-cols-1 gap-3 sm:gap-4 pt-1">
+                <!-- Modul 1 -->
+                <button onclick="startModule('mimic')" class="pop-btn p-4 bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-2xl shadow-lg text-left flex items-center space-x-4 border-b-4 border-rose-700 hover:brightness-105">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        🗣️
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">1. Tiru Suara Vokal</h3>
+                        <p class="text-xs text-pink-100 font-poppins font-normal">Tebak & bunyikan vokal "AAAA", "OOOO", "EEEE", "LALALA"!</p>
+                    </div>
+                </button>
+
+                <!-- Modul 2 -->
+                <button onclick="startModule('breath')" class="pop-btn p-4 bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-2xl shadow-lg text-left flex items-center space-x-4 border-b-4 border-cyan-700 hover:brightness-105">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        🌬️
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">2. Latihan Napas & Vokal</h3>
+                        <p class="text-xs text-cyan-100 font-poppins font-normal">Tarik napas, tahan, lalu tahan vokal "AAAA..." panjang!</p>
+                    </div>
+                </button>
+
+                <!-- Modul 3 -->
+                <button onclick="startModule('trill')" class="pop-btn p-4 bg-gradient-to-r from-purple-500 to-indigo-400 text-white rounded-2xl shadow-lg text-left flex items-center space-x-4 border-b-4 border-indigo-700 hover:brightness-105">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        🐝
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">3. Kelincahan & Lip Trill</h3>
+                        <p class="text-xs text-purple-100 font-poppins font-normal">Latih getaran bibir & humming nada ceria bersambung!</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAMEPLAY MODUL 1 (TIRU SUARA VOKAL) -->
+        <div id="game-mimic" class="hidden space-y-5">
+            <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                <button onclick="goToMenu()" class="text-gray-400 hover:text-gray-600 font-poppins text-xs sm:text-sm font-semibold flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Pilih Modul
+                </button>
+                <div class="bg-pink-100 text-pink-700 font-bold px-3 py-1 rounded-full text-xs sm:text-sm">
+                    Skor: <span id="mimic-score" class="font-black text-lg">0</span>
+                </div>
+            </div>
+
+            <div class="bg-pink-50 rounded-2xl p-4 border-2 border-pink-200">
+                <span class="text-xs font-bold text-pink-500 uppercase tracking-widest">Modul 1</span>
+                <h3 class="text-xl font-black text-gray-800 mt-1">Dengarkan Suara Vokal Target!</h3>
+                <p class="text-xs text-gray-500 font-poppins mt-1">Klik tombol di bawah untuk mendengarkan bunyinya, lalu pilih vokal yang cocok!</p>
+            </div>
+
+            <!-- Target Sound Trigger -->
+            <div class="py-2">
+                <button onclick="playTargetVocalSound()" class="pop-btn w-full py-4 bg-gradient-to-r from-brandPink to-brandPurple text-white font-bold rounded-2xl shadow-lg flex items-center justify-center space-x-3 text-lg border-b-4 border-purple-800">
+                    <i class="fa-solid fa-volume-high text-2xl animate-pulse"></i>
+                    <span id="target-sound-btn-text">Dengarkan Suara Vokal 🎵</span>
+                </button>
+            </div>
+
+            <!-- Vocal Option Buttons -->
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pilih Bunyi Suara Yang Tepat:</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3" id="vocal-buttons-container">
+                    <!-- Buttons generated dynamically in JS -->
+                </div>
+            </div>
+
+            <!-- Dynamic Feedback -->
+            <div id="mimic-feedback" class="h-8 flex items-center justify-center font-bold text-sm sm:text-base"></div>
+        </div>
+
+        <!-- SCREEN 4: GAMEPLAY MODUL 2 (LATIHAN NAPAS & VOKAL) -->
+        <div id="game-breath" class="hidden space-y-5">
+            <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                <button onclick="goToMenu()" class="text-gray-400 hover:text-gray-600 font-poppins text-xs sm:text-sm font-semibold flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Pilih Modul
+                </button>
+                <div class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-xs sm:text-sm">
+                    Rekor: <span id="breath-high" class="font-black text-lg">0</span>s
+                </div>
+            </div>
+
+            <div class="bg-blue-50 rounded-2xl p-4 border-2 border-blue-200">
+                <span class="text-xs font-bold text-blue-500 uppercase tracking-widest">Modul 2</span>
+                <h3 class="text-xl font-black text-gray-800 mt-1">Panduan Napas & Tahan Vokal</h3>
+                <p class="text-xs text-gray-500 font-poppins mt-1">Tarik napas dalam-dalam, lalu tahan bunyi vokal "AAAA..." selagi tombol ditekan!</p>
+            </div>
+
+            <!-- Visual Breathing Bubble -->
+            <div class="py-4 flex flex-col items-center justify-center min-h-[160px]">
+                <div id="breath-circle" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 border-4 border-white shadow-xl flex flex-col items-center justify-center text-white font-black transition-all duration-300">
+                    <span id="breath-status-text" class="text-sm">SIAP?</span>
+                    <span id="breath-timer-text" class="text-3xl font-black">0s</span>
+                </div>
+            </div>
+
+            <!-- Hold Vocal Action Button -->
+            <div class="space-y-2">
+                <p class="text-xs text-gray-500 font-poppins">Tekan & TAHAN tombol di bawah sambil membunyikan vokal <strong>"AAAAAA..."</strong></p>
+                <button id="breath-hold-btn" class="pop-btn w-full py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-extrabold rounded-2xl shadow-lg text-xl border-b-4 border-blue-800 select-none">
+                    <i class="fa-solid fa-microphone mr-2"></i> TAHAN & BUNYIKAN "AAAA..."
+                </button>
+            </div>
+            
+            <div id="breath-feedback" class="h-8 flex items-center justify-center font-bold text-sm sm:text-base text-blue-600"></div>
+        </div>
+
+        <!-- SCREEN 5: GAMEPLAY MODUL 3 (LIP TRILL & KELINCAHAN VOKAL) -->
+        <div id="game-trill" class="hidden space-y-5">
+            <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                <button onclick="goToMenu()" class="text-gray-400 hover:text-gray-600 font-poppins text-xs sm:text-sm font-semibold flex items-center">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Pilih Modul
+                </button>
+                <div class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-full text-xs sm:text-sm">
+                    Latihan: <span id="trill-step" class="font-black text-lg">1/5</span>
+                </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-2xl p-4 border-2 border-purple-200">
+                <span class="text-xs font-bold text-purple-500 uppercase tracking-widest">Modul 3</span>
+                <h3 class="text-xl font-black text-gray-800 mt-1">Kelincahan & Lip Trill 🐝</h3>
+                <p class="text-xs text-gray-500 font-poppins mt-1">Getarkan bibir (Brrr...) atau humming (MMM...) mengikuti irama melodi ceria di bawah!</p>
+            </div>
+
+            <!-- Melody Visualizer Box -->
+            <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-inner flex items-center justify-around h-24">
+                <div id="trill-bar-1" class="w-6 bg-purple-300 rounded-full h-8 transition-all duration-300"></div>
+                <div id="trill-bar-2" class="w-6 bg-purple-300 rounded-full h-12 transition-all duration-300"></div>
+                <div id="trill-bar-3" class="w-6 bg-purple-300 rounded-full h-16 transition-all duration-300"></div>
+                <div id="trill-bar-4" class="w-6 bg-purple-300 rounded-full h-12 transition-all duration-300"></div>
+                <div id="trill-bar-5" class="w-6 bg-purple-300 rounded-full h-20 transition-all duration-300"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="playTrillSequence()" class="pop-btn py-4 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-2xl shadow-md border-b-4 border-purple-800 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Putar Irama Melodi</span>
+                </button>
+                <button onclick="completeTrillStep()" class="pop-btn py-4 bg-brandGreen hover:bg-green-600 text-white font-bold rounded-2xl shadow-md border-b-4 border-green-800 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Saya Sudah Meniru!</span>
+                </button>
+            </div>
+
+            <div id="trill-feedback" class="h-8 flex items-center justify-center font-bold text-sm text-purple-600"></div>
+        </div>
+
+        <!-- REWARD MODAL / POPUP -->
+        <div id="reward-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border-4 border-yellow-300 animate-bounce-slow">
+                <div class="text-6xl">🌟</div>
+                <h3 class="text-2xl font-black text-gray-800">Luar Biasa Ceria!</h3>
+                <p id="reward-desc" class="text-sm text-gray-600 font-poppins">Kamu menyelesaikan latihan vokal dengan sangat baik!</p>
+                <div class="flex justify-center space-x-2 text-yellow-400 text-3xl">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <button onclick="closeRewardModal()" class="pop-btn w-full py-3 bg-brandPink text-white font-extrabold rounded-xl shadow-lg border-b-4 border-pink-700">
+                    Lanjut Latihan ✨
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AUDIO ENGINE & GAME LOGIC -->
+    <script>
+        // Global State & Audio Context
+        let audioCtx = null;
+        let totalStars = 0;
+
+        // Vocal Practice Items (No Solfeggio / No Do-Re-Mi / No Letter Notes)
+        const vocalTypes = [
+            { id: 'AAAA', label: 'AAAA', pitch: 261.63, wave: 'sine', desc: 'Vokal Terbuka (Panjang)' },
+            { id: 'OOOO', label: 'OOOO', pitch: 293.66, wave: 'sine', desc: 'Vokal Bulat' },
+            { id: 'EEEE', label: 'EEEE', pitch: 329.63, wave: 'triangle', desc: 'Vokal Terang' },
+            { id: 'MMMM', label: 'MMMM (Humming)', pitch: 220.00, wave: 'sine', desc: 'Dengung Bibir Rapat' },
+            { id: 'LALALA', label: 'LALALA', pitch: 392.00, wave: 'triangle', desc: 'Kelincahan Lidah' },
+            { id: 'BRRRR', label: 'BRRRR (Lip Trill)', pitch: 196.00, wave: 'sawtooth', desc: 'Getaran Bibir Rileks' }
+        ];
+
+        let currentMimicTarget = null;
+        let mimicScore = 0;
+
+        // Audio Engine Initialization
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Web Audio Synth Generator for Warm-up Sounds
+        function playVocalSynth(freq, type = 'sine', duration = 1.0, formantEffect = false) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            // Optional Formant-like filter effect for warmer vocal tone simulation
+            if (formantEffect) {
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = freq * 1.5;
+                filter.Q.value = 3.0;
+                
+                osc.connect(filter);
+                filter.connect(gain);
+            } else {
+                osc.connect(gain);
+            }
+
+            gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // NAVIGATION LOGIC
+        function hideAllScreens() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-mimic').classList.add('hidden');
+            document.getElementById('game-breath').classList.add('hidden');
+            document.getElementById('game-trill').classList.add('hidden');
+        }
+
+        function goToWelcome() {
+            hideAllScreens();
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        function goToMenu() {
+            initAudio();
+            hideAllScreens();
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('total-stars').innerText = totalStars;
+        }
+
+        function startModule(moduleName) {
+            hideAllScreens();
+            if (moduleName === 'mimic') {
+                document.getElementById('game-mimic').classList.remove('hidden');
+                setupMimicModule();
+            } else if (moduleName === 'breath') {
+                document.getElementById('game-breath').classList.remove('hidden');
+                setupBreathModule();
+            } else if (moduleName === 'trill') {
+                document.getElementById('game-trill').classList.remove('hidden');
+                setupTrillModule();
+            }
+        }
+
+        /* ----------------------------------------------------
+           MODULE 1: TEBAK & TIRU SUARA VOKAL
+        ---------------------------------------------------- */
+        function setupMimicModule() {
+            mimicScore = 0;
+            document.getElementById('mimic-score').innerText = mimicScore;
+            
+            // Build Vocal Choice Buttons
+            const container = document.getElementById('vocal-buttons-container');
+            container.innerHTML = '';
+
+            vocalTypes.forEach(vocal => {
+                const btn = document.createElement('button');
+                btn.className = 'pop-btn py-4 px-2 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-black text-base sm:text-lg rounded-2xl shadow-md border-b-4 border-rose-600 flex flex-col items-center justify-center';
+                btn.innerHTML = `<span>${vocal.label}</span><span class="text-[10px] font-normal text-pink-100 opacity-90">${vocal.desc}</span>`;
+                btn.onclick = () => guessVocal(vocal);
+                container.appendChild(btn);
+            });
+
+            nextMimicRound();
+        }
+
+        function nextMimicRound() {
+            const randomIndex = Math.floor(Math.random() * vocalTypes.length);
+            currentMimicTarget = vocalTypes[randomIndex];
+            document.getElementById('mimic-feedback').innerText = '';
+            
+            setTimeout(() => {
+                playTargetVocalSound();
+            }, 300);
+        }
+
+        function playTargetVocalSound() {
+            if (!currentMimicTarget) return;
+            playVocalSynth(currentMimicTarget.pitch, currentMimicTarget.wave, 1.2, true);
+            
+            const feedback = document.getElementById('mimic-feedback');
+            feedback.className = 'h-8 flex items-center justify-center font-bold text-sm text-brandPurple animate-pulse';
+            feedback.innerText = '🔊 Mendengarkan suara vokal target...';
+        }
+
+        function guessVocal(selectedVocal) {
+            // Play selected vocal sound preview
+            playVocalSynth(selectedVocal.pitch, selectedVocal.wave, 0.6, true);
+
+            const feedback = document.getElementById('mimic-feedback');
+
+            if (selectedVocal.id === currentMimicTarget.id) {
+                mimicScore += 10;
+                totalStars += 1;
+                document.getElementById('mimic-score').innerText = mimicScore;
+                
+                feedback.className = 'h-8 flex items-center justify-center font-bold text-sm text-green-500';
+                feedback.innerText = `🎉 Tepat Sekali! Suara vokal "${selectedVocal.label}"! +10`;
+
+                if (mimicScore >= 50) {
+                    setTimeout(() => {
+                        showRewardModal('Selamat! Pendengaran & peniruan vokalmu luar biasa bagus!');
+                    }, 800);
+                } else {
+                    setTimeout(nextMimicRound, 1500);
+                }
+            } else {
+                feedback.className = 'h-8 flex items-center justify-center font-bold text-sm text-red-500';
+                feedback.innerText = `❌ Hampir pas! Coba dengarkan lagi ya!`;
+            }
+        }
+
+        /* ----------------------------------------------------
+           MODULE 2: LATIHAN NAPAS & VOKAL
+        ---------------------------------------------------- */
+        let breathTimer = null;
+        let breathSeconds = 0;
+        let breathHighScore = 0;
+        let isHoldingBreath = false;
+
+        function setupBreathModule() {
+            breathSeconds = 0;
+            updateBreathUI('SIAP?', '0s', false);
+            document.getElementById('breath-feedback').innerText = 'Tekan & Tahan tombol di bawah saat mengeluarkan suara "AAAA..."';
+            
+            const holdBtn = document.getElementById('breath-hold-btn');
+
+            // Mouse Events
+            holdBtn.onmousedown = startBreathHold;
+            holdBtn.onmouseup = stopBreathHold;
+            holdBtn.onmouseleave = stopBreathHold;
+
+            // Touch Events for Mobile
+            holdBtn.ontouchstart = (e) => { e.preventDefault(); startBreathHold(); };
+            holdBtn.ontouchend = (e) => { e.preventDefault(); stopBreathHold(); };
+        }
+
+        function startBreathHold() {
+            if (isHoldingBreath) return;
+            initAudio();
+            isHoldingBreath = true;
+            breathSeconds = 0;
+
+            const circle = document.getElementById('breath-circle');
+            circle.classList.add('scale-125', 'from-pink-500', 'to-yellow-400');
+
+            document.getElementById('breath-status-text').innerText = 'TAHAN "AAAA"';
+            document.getElementById('breath-feedback').innerText = 'Bagus! Terus keluarkan napas & bunyi vokal "AAAA..."';
+
+            // Continuous background sound indicator
+            playVocalSynth(261.63, 'sine', 12.0, false);
+
+            breathTimer = setInterval(() => {
+                breathSeconds++;
+                document.getElementById('breath-timer-text').innerText = `${breathSeconds}s`;
+
+                if (breathSeconds > breathHighScore) {
+                    breathHighScore = breathSeconds;
+                    document.getElementById('breath-high').innerText = breathHighScore;
+                }
+            }, 1000);
+        }
+
+        function stopBreathHold() {
+            if (!isHoldingBreath) return;
+            isHoldingBreath = false;
+            clearInterval(breathTimer);
+
+            const circle = document.getElementById('breath-circle');
+            circle.classList.remove('scale-125', 'from-pink-500', 'to-yellow-400');
+
+            document.getElementById('breath-status-text').innerText = 'SELESAI!';
+            document.getElementById('breath-feedback').innerText = `Hebat! Kamu berhasil menahan vokal selama ${breathSeconds} detik! 🎉`;
+
+            if (breathSeconds >= 5) {
+                totalStars += 2;
+                setTimeout(() => {
+                    showRewardModal(`Hebat! Napas & vokalmu bertahan selama ${breathSeconds} detik! 🌟`);
+                }, 600);
+            }
+        }
+
+        function updateBreathUI(status, timer, active) {
+            document.getElementById('breath-status-text').innerText = status;
+            document.getElementById('breath-timer-text').innerText = timer;
+        }
+
+        /* ----------------------------------------------------
+           MODULE 3: LIP TRILL & KELINCAHAN VOKAL
+        ---------------------------------------------------- */
+        let trillStep = 1;
+
+        function setupTrillModule() {
+            trillStep = 1;
+            document.getElementById('trill-step').innerText = `${trillStep}/5`;
+            document.getElementById('trill-feedback').innerText = 'Klik "Putar Irama Melodi" lalu ikuti dengan Lip Trill (Brrr...)!';
+        }
+
+        function playTrillSequence() {
+            initAudio();
+            const frequencies = [220, 261.63, 293.66, 329.63, 392.00];
+            const bars = [
+                document.getElementById('trill-bar-1'),
+                document.getElementById('trill-bar-2'),
+                document.getElementById('trill-bar-3'),
+                document.getElementById('trill-bar-4'),
+                document.getElementById('trill-bar-5')
+            ];
+
+            document.getElementById('trill-feedback').innerText = '🔊 Dengarkan iramanya... Lalu tirukan!';
+
+            frequencies.forEach((freq, idx) => {
+                setTimeout(() => {
+                    playVocalSynth(freq, 'sawtooth', 0.4, true);
+                    
+                    // Highlight visual bar
+                    bars.forEach((bar, i) => {
+                        if (i === idx) {
+                            bar.className = 'w-6 bg-brandPink rounded-full h-24 transition-all duration-300';
+                        } else {
+                            bar.className = 'w-6 bg-purple-200 rounded-full h-10 transition-all duration-300';
+                        }
+                    });
+                }, idx * 400);
+            });
+
+            setTimeout(() => {
+                bars.forEach(bar => {
+                    bar.className = 'w-6 bg-purple-300 rounded-full h-12 transition-all duration-300';
+                });
+            }, frequencies.length * 400 + 200);
+        }
+
+        function completeTrillStep() {
+            totalStars += 1;
+            trillStep++;
+
+            if (trillStep > 5) {
+                showRewardModal('Luar biasa! Lip trill & kelincahan vokalmu makin lentur!');
+                trillStep = 1;
+            }
+
+            document.getElementById('trill-step').innerText = `${trillStep}/5`;
+            document.getElementById('trill-feedback').innerText = 'Mantap! Lanjutkan ke variasi melodi berikutnya! ✨';
+        }
+
+        /* REWARD MODAL LOGIC */
+        function showRewardModal(desc) {
+            document.getElementById('reward-desc').innerText = desc;
+            document.getElementById('reward-modal').classList.remove('hidden');
+            
+            // Play fanfare sound
+            if (audioCtx) {
+                [330, 392, 523.25].forEach((freq, idx) => {
+                    setTimeout(() => playVocalSynth(freq, 'triangle', 0.5), idx * 150);
+                });
+            }
+        }
+
+        function closeRewardModal() {
+            document.getElementById('reward-modal').classList.add('hidden');
+            goToMenu();
+        }
+    </script>
+</body>
+</html>

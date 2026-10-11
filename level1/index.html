@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Vokal CERIA</title>
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f8f4dc;
+  text-align:center;
+  padding:20px;
+}
+.card{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 0 15px rgba(0,0,0,.1);
+}
+button{
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
+  background:#FFD54F;
+  cursor:pointer;
+  margin: 5px;
+}
+button:disabled{
+  background:#e0e0e0;
+  cursor:not-allowed;
+}
+#micStatus{
+  font-size:20px;
+  font-weight:bold;
+  margin:20px;
+}
+.equalizer{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  height:260px;
+  gap:8px;
+  margin-top:30px;
+}
+.bar{
+  width:40px;
+  height:20px;
+  background:#90CAF9;
+  border-radius:8px;
+  transition:.08s;
+}
+#score{
+  font-size:35px;
+  font-weight:bold;
+  color:#1976D2;
+  margin-top:25px;
+}
+#highScore{
+  font-size:18px;
+  color:#D32F2F;
+  margin-top:10px;
+  font-weight:bold;
+}
+.hidden{
+  display:none;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎤 Game Vokal CERIA</h1>
+  <p>Ucapkan vokal "AAAAAA" selama mungkin dalam 10 detik!</p>
+  
+  <div id="micStatus">🔴 Mikrofon Belum Aktif</div>
+  <div id="highScore">🏆 Skor Tertinggi (Level 1): 0 / 10</div>
+  
+  <button id="startBtn" onclick="startMic()">🎙 Aktifkan Mikrofon</button>
+  <button id="nextLevelBtn" class="hidden" onclick="finishLevel1()">✅ Level 1 Selesai</button>
+  
+  <div class="equalizer" id="eq"></div>
+  <div id="score"></div>
+</div>
+
+<script>
+const eq = document.getElementById("eq");
+for(let i = 0; i < 10; i++){
+  const bar = document.createElement("div");
+  bar.className = "bar";
+  eq.appendChild(bar);
+}
+
+// Muat skor tertinggi dari localStorage saat halaman dimuat
+let savedHighScore = localStorage.getItem("vocalHighScore_lvl1") || 0;
+document.getElementById("highScore").innerHTML = "🏆 Skor Tertinggi (Level 1): " + savedHighScore + " / 10";
+
+async function startMic(){
+  const startBtn = document.getElementById("startBtn");
+  const nextLevelBtn = document.getElementById("nextLevelBtn");
+  
+  startBtn.disabled = true;
+  nextLevelBtn.classList.add("hidden");
+  document.getElementById("score").innerHTML = "";
+  
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    document.getElementById("micStatus").innerHTML = "🟢 Mikrofon Aktif - Mulai Bersuara!";
+    
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+    
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 1024;
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    
+    const data = new Uint8Array(analyser.fftSize);
+    const bars = document.querySelectorAll(".bar");
+    
+    let scoreTimer = 0;
+    let isPlaying = true;
+
+    function update(){
+      if(!isPlaying) return;
+      
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for(let i = 0; i < data.length; i++){
+        let x = (data[i] - 128) / 128;
+        sum += x * x;
+      }
+      let rms = Math.sqrt(sum / data.length);
+      let volume = rms * 100;
+      let level = Math.min(10, Math.floor(volume * 2));
+      
+      if(level > 3){
+        scoreTimer += 0.02;
+      }
+      
+      bars.forEach((bar, index)=>{
+        if(index < level){
+          bar.style.height = (40 + (index * 18)) + "px";
+          bar.style.background = "#4CAF50";
+        } else {
+          bar.style.height = "20px";
+          bar.style.background = "#C5CAE9";
+        }
+      });
+      
+      requestAnimationFrame(update);
+    }
+    
+    update();
+
+    setTimeout(()=>{
+      isPlaying = false;
+      stream.getTracks().forEach(track => track.stop());
+      
+      let nilai = Math.min(10, Math.round(scoreTimer));
+      document.getElementById("score").innerHTML = "🌟 Skor Ketahanan Vokal : " + nilai + " / 10";
+      document.getElementById("micStatus").innerHTML = "🏁 Waktu Habis!";
+      
+      // Cek dan Simpan High Score
+      let currentHighScore = localStorage.getItem("vocalHighScore_lvl1") || 0;
+      if(nilai > currentHighScore){
+        localStorage.setItem("vocalHighScore_lvl1", nilai);
+        document.getElementById("highScore").innerHTML = "🏆 Skor Tertinggi (Level 1): " + nilai + " / 10 (BARU!)";
+      }
+
+      startBtn.innerText = "🔄 Coba Lagi";
+      startBtn.disabled = false;
+      
+      // Tampilkan tombol Level 1 Selesai
+      nextLevelBtn.classList.remove("hidden");
+    }, 10000);
+
+  } catch(err){
+    document.getElementById("micStatus").innerHTML = "❌ Izin Mikrofon Ditolak";
+    startBtn.disabled = false;
+  }
+}
+
+function finishLevel1(){
+  alert("🎉 Selamat! Anda telah menyelesaikan Level 1 Game Vokal CERIA.");
+  location.reload();
+}
+</script>
+</body>
+</html>
